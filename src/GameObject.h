@@ -1,7 +1,6 @@
 #pragma once
 #include <glm/glm.hpp>
-#include "Shader.h"  // Asegúrate de incluir el header de Shader
-
+#include "Shader.h"
 class GameObject {
 public:
     glm::vec2 Position;

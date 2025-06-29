@@ -227,7 +227,7 @@ int main()
       //  glm::vec2(0.2f, 0.1f),
 
     glm::vec2(0.0f, -0.8f),
-    glm::vec2(0.8f, 1.3333f),
+    glm::vec2(0.8f * 0.5f, 1.3333f * 0.5f),
         TexturaJugador,
         TexturaJugadorD
     );
