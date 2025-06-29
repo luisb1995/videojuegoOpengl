@@ -11,11 +11,15 @@
 #include <GLFW/glfw3.h>
 #include "Shader.h"
 #include "GameObject.cpp"
+#include "Player.cpp"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 int switcheable = 1;
 
 void processInput(GLFWwindow *window, int switcheable);
+Player* jugador = nullptr;
+float velocidad_jugador = 0.0003f;
+
 
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
@@ -42,7 +46,7 @@ float vertices[] = {
     -0.5f, 0.5f, 0.0f, 0.0f, 1.0f};
 unsigned int indices[] = {0, 1, 3, 1, 2, 3};
 
-unsigned int VBO, VAO, EBO, texture, texturaTitulo, texturaMensaje, TexturaJugador;
+unsigned int VBO, VAO, EBO, texture, texturaTitulo, texturaMensaje, TexturaJugador, TexturaJugadorD;
 
 int main()
 {
@@ -187,13 +191,49 @@ int main()
     stbi_image_free(basketData);
 
 
-    GameObject player( 
+
+
+
+
+
+        glGenTextures(1, &TexturaJugadorD);
+    glBindTexture(GL_TEXTURE_2D, TexturaJugadorD);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char *basketDataD = stbi_load("jugadord.png", &width, &height, &nrChannels, 4);
+    if (basketDataD)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, basketDataD);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cout << "Error al cargar textura de cesta" << std::endl;
+    }
+    stbi_image_free(basketDataD);
+
+
+
+
+
+
+
+
+    jugador = new Player( 
       //  glm::vec2(0.0f, -0.8f),
       //  glm::vec2(0.2f, 0.1f),
 
     glm::vec2(0.0f, -0.8f),
     glm::vec2(0.8f, 1.3333f),
-        TexturaJugador);
+        TexturaJugador,
+        TexturaJugadorD
+    );
+
+    static float velocidad_jugador = 0.05f;
+
 
     while (!glfwWindowShouldClose(window))
     {
@@ -288,10 +328,10 @@ case GAME: {
     shader.use();
 
     glUniform1f(glGetUniformLocation(shader.ID, "uCountdown"), -1.0f);
+    
+    jugador->Draw(shader, VAO, false);
 
     glBindVertexArray(VAO);
-
-    player.Draw(shader, VAO);
 
     break;
 }
@@ -335,6 +375,13 @@ void processInput(GLFWwindow *window, int switcheable)
     }
     if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_RELEASE)
         enterPressed = false;
+} else {
+            if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+            jugador->Move(-velocidad_jugador);
+        }
+        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+            jugador->Move(velocidad_jugador);
+        }
 }
 }
 
