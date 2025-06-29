@@ -186,9 +186,13 @@ int main()
     }
     stbi_image_free(basketData);
 
-    GameObject player(
-        glm::vec2(0.0f, -0.8f),
-        glm::vec2(0.2f, 0.1f),
+
+    GameObject player( 
+      //  glm::vec2(0.0f, -0.8f),
+      //  glm::vec2(0.2f, 0.1f),
+
+    glm::vec2(0.0f, -0.8f),
+    glm::vec2(0.8f, 1.3333f),
         TexturaJugador);
 
     while (!glfwWindowShouldClose(window))
@@ -231,7 +235,6 @@ int main()
             glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transformMensaje));
             glBindTexture(GL_TEXTURE_2D, texturaMensaje);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-            player.Draw(shader, VAO);
 
             break;
         }
@@ -278,13 +281,20 @@ int main()
             }
             break;
         }
-        case GAME: {
-                player.Draw(shader, VAO);
-                glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
-                glClear(GL_COLOR_BUFFER_BIT);
-                player.Draw(shader, VAO);
+case GAME: {
+    glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
 
-        }
+    shader.use();
+
+    glUniform1f(glGetUniformLocation(shader.ID, "uCountdown"), -1.0f);
+
+    glBindVertexArray(VAO);
+
+    player.Draw(shader, VAO);
+
+    break;
+}
         case END:
         switcheable = 1;
             glClearColor(0.2f, 0.0f, 0.1f, 1.0f);
