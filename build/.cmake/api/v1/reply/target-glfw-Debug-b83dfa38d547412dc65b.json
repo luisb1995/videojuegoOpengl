@@ -135,15 +135,15 @@
 			[
 				{
 					"backtrace" : 7,
-					"path" : "C:/Users/usuario/Documents/work/work2/videojuegoOpengl/external/glfw/include"
+					"path" : "C:/Users/pc/Desktop/videojuegoOpengl/external/glfw/include"
 				},
 				{
 					"backtrace" : 8,
-					"path" : "C:/Users/usuario/Documents/work/work2/videojuegoOpengl/external/glfw/src"
+					"path" : "C:/Users/pc/Desktop/videojuegoOpengl/external/glfw/src"
 				},
 				{
 					"backtrace" : 8,
-					"path" : "C:/Users/usuario/Documents/work/work2/videojuegoOpengl/build/external/glfw/src"
+					"path" : "C:/Users/pc/Desktop/videojuegoOpengl/build/external/glfw/src"
 				}
 			],
 			"language" : "C",

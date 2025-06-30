@@ -10,8 +10,12 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "Shader.h"
-#include "GameObject.cpp"
-#include "Player.cpp"
+#include "GameObject.h"
+#include "Player.h"
+#include "FallingObject.h"
+#include <vector>
+#include <ctime> 
+#include <algorithm>
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 int switcheable = 1;
@@ -51,6 +55,7 @@ unsigned int VBO, VAO, EBO, texture, texturaTitulo, texturaMensaje, TexturaJugad
 int main()
 {
     glfwInit();
+    srand(static_cast<unsigned int>(time(0)));
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -218,7 +223,39 @@ int main()
 
 
 
+std::vector<FallingObject> frutas;  // Frutas activas en escena
+float frutaSpawnTimer = 0.0f;
+float frutaSpawnInterval = 1.0f; // cada segundo
+std::vector<unsigned int> texturasFrutas;
+std::vector<std::string> nombresFrutas = {
+    "frutas/banana.png",
+    "frutas/apple.png",
+    "frutas/grape.png",
+    "frutas/pear.png"
+};
 
+for (const auto& nombre : nombresFrutas) {
+    unsigned int texID;
+    glGenTextures(1, &texID);
+    glBindTexture(GL_TEXTURE_2D, texID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    data = stbi_load(nombre.c_str(), &width, &height, &nrChannels, 4);
+    if (data)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        texturasFrutas.push_back(texID);
+    }
+    else
+    {
+        std::cout << "Error al cargar imagen de fruta: " << nombre << std::endl;
+    }
+    stbi_image_free(data);
+}
 
 
 
@@ -232,7 +269,7 @@ int main()
         TexturaJugadorD
     );
 
-    static float velocidad_jugador = 0.05f;
+    static float velocidad_jugador = 0.08f;
 
 
     while (!glfwWindowShouldClose(window))
@@ -332,7 +369,43 @@ case GAME: {
     jugador->Draw(shader, VAO, false);
 
     glBindVertexArray(VAO);
+    float currentTime = glfwGetTime();
+    float deltaTime = currentTime - countdownStartTime;
+    countdownStartTime = currentTime;
 
+    // ⏱️ Spawnear frutas
+    frutaSpawnTimer += deltaTime;
+    if (frutaSpawnTimer >= frutaSpawnInterval) {
+        frutaSpawnTimer = 0.0f;
+
+        float x = ((rand() % 100) / 100.0f) * 2.0f - 1.0f;
+        float y = 1.2f;
+        float speed = 0.3f + (rand() % 100) / 500.0f;
+
+        if (!texturasFrutas.empty()) {
+            int idx = rand() % texturasFrutas.size();
+            unsigned int texturaElegida = texturasFrutas[idx];
+            frutas.emplace_back(glm::vec2(x, y), glm::vec2(0.2f, 0.2f), texturaElegida, speed);
+        }
+    }
+
+    // 🧹 Actualizar y dibujar frutas
+    for (auto& fruta : frutas) {
+        if (fruta.IsActive) {
+            fruta.Update(deltaTime);
+            fruta.Draw(shader, VAO);
+
+            if (jugador && jugador->CheckCollision(fruta)) {
+                fruta.IsActive = false;
+                // Aquí puedes sumar puntaje, cambiar estado, etc.
+            }
+        }
+    }
+
+    // 🗑️ Eliminar frutas que ya no están activas
+    frutas.erase(std::remove_if(frutas.begin(), frutas.end(),
+                                [](const FallingObject& f) { return !f.IsActive; }),
+                 frutas.end());
     break;
 }
         case END:
