@@ -66,23 +66,23 @@
 			[
 				{
 					"backtrace" : 4,
-					"path" : "C:/Users/pc/Desktop/videojuegoOpengl/external/glfw/include"
+					"path" : "C:/Users/usuario/Documents/work/work2/videojuegoOpengl/external/glfw/include"
 				},
 				{
 					"backtrace" : 4,
-					"path" : "C:/Users/pc/Desktop/videojuegoOpengl/external/glad/include/glad"
+					"path" : "C:/Users/usuario/Documents/work/work2/videojuegoOpengl/external/glad/include/glad"
 				},
 				{
 					"backtrace" : 4,
-					"path" : "C:/Users/pc/Desktop/videojuegoOpengl/src"
+					"path" : "C:/Users/usuario/Documents/work/work2/videojuegoOpengl/src"
 				},
 				{
 					"backtrace" : 4,
-					"path" : "C:/Users/pc/Desktop/videojuegoOpengl/external"
+					"path" : "C:/Users/usuario/Documents/work/work2/videojuegoOpengl/external"
 				},
 				{
 					"backtrace" : 3,
-					"path" : "C:/Users/pc/Desktop/videojuegoOpengl/external/glad/include"
+					"path" : "C:/Users/usuario/Documents/work/work2/videojuegoOpengl/external/glad/include"
 				}
 			],
 			"language" : "CXX",
@@ -121,12 +121,12 @@
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "-LC:\\Users\\pc\\Desktop\\videojuegoOpengl\\external\\glfw\\src",
+				"fragment" : "-LC:\\Users\\usuario\\Documents\\work\\work2\\videojuegoOpengl\\external\\glfw\\src",
 				"role" : "libraryPath"
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "-LC:\\Users\\pc\\Desktop\\videojuegoOpengl\\external\\glad\\src",
+				"fragment" : "-LC:\\Users\\usuario\\Documents\\work\\work2\\videojuegoOpengl\\external\\glad\\src",
 				"role" : "libraryPath"
 			},
 			{

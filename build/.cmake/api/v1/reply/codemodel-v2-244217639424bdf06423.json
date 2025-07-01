@@ -129,21 +129,21 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "OpenGLStarter::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-OpenGLStarter-Debug-b1b0b41e1d3599557d81.json",
+					"jsonFile" : "target-OpenGLStarter-Debug-37c7ce5d46e40f4532a5.json",
 					"name" : "OpenGLStarter",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 3,
 					"id" : "glad::@55512df44c152ef9a2ca",
-					"jsonFile" : "target-glad-Debug-09402c3b338c4ce154f3.json",
+					"jsonFile" : "target-glad-Debug-cc1fb73c18b1043f777a.json",
 					"name" : "glad",
 					"projectIndex" : 2
 				},
 				{
 					"directoryIndex" : 2,
 					"id" : "glfw::@ca12bac854c2ac6b2230",
-					"jsonFile" : "target-glfw-Debug-b83dfa38d547412dc65b.json",
+					"jsonFile" : "target-glfw-Debug-779194881fadad8e4013.json",
 					"name" : "glfw",
 					"projectIndex" : 1
 				},
@@ -167,8 +167,8 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "C:/Users/pc/Desktop/videojuegoOpengl/build",
-		"source" : "C:/Users/pc/Desktop/videojuegoOpengl"
+		"build" : "C:/Users/usuario/Documents/work/work2/videojuegoOpengl/build",
+		"source" : "C:/Users/usuario/Documents/work/work2/videojuegoOpengl"
 	},
 	"version" : 
 	{

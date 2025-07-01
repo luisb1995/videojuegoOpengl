@@ -49,6 +49,27 @@ cmake_ninja_workdir = C$:/Users/usuario/Documents/work/work2/videojuegoOpengl/bu
 
 build cmake_object_order_depends_target_OpenGLStarter: phony || cmake_object_order_depends_target_glad cmake_object_order_depends_target_glfw
 
+build CMakeFiles/OpenGLStarter.dir/src/FallingObject.cpp.obj: CXX_COMPILER__OpenGLStarter_unscanned_Debug C$:/Users/usuario/Documents/work/work2/videojuegoOpengl/src/FallingObject.cpp || cmake_object_order_depends_target_OpenGLStarter
+  DEP_FILE = CMakeFiles\OpenGLStarter.dir\src\FallingObject.cpp.obj.d
+  FLAGS = -g
+  INCLUDES = -IC:/Users/usuario/Documents/work/work2/videojuegoOpengl/external/glfw/include -IC:/Users/usuario/Documents/work/work2/videojuegoOpengl/external/glad/include/glad -IC:/Users/usuario/Documents/work/work2/videojuegoOpengl/src -IC:/Users/usuario/Documents/work/work2/videojuegoOpengl/external -IC:/Users/usuario/Documents/work/work2/videojuegoOpengl/external/glad/include
+  OBJECT_DIR = CMakeFiles\OpenGLStarter.dir
+  OBJECT_FILE_DIR = CMakeFiles\OpenGLStarter.dir\src
+
+build CMakeFiles/OpenGLStarter.dir/src/GameObject.cpp.obj: CXX_COMPILER__OpenGLStarter_unscanned_Debug C$:/Users/usuario/Documents/work/work2/videojuegoOpengl/src/GameObject.cpp || cmake_object_order_depends_target_OpenGLStarter
+  DEP_FILE = CMakeFiles\OpenGLStarter.dir\src\GameObject.cpp.obj.d
+  FLAGS = -g
+  INCLUDES = -IC:/Users/usuario/Documents/work/work2/videojuegoOpengl/external/glfw/include -IC:/Users/usuario/Documents/work/work2/videojuegoOpengl/external/glad/include/glad -IC:/Users/usuario/Documents/work/work2/videojuegoOpengl/src -IC:/Users/usuario/Documents/work/work2/videojuegoOpengl/external -IC:/Users/usuario/Documents/work/work2/videojuegoOpengl/external/glad/include
+  OBJECT_DIR = CMakeFiles\OpenGLStarter.dir
+  OBJECT_FILE_DIR = CMakeFiles\OpenGLStarter.dir\src
+
+build CMakeFiles/OpenGLStarter.dir/src/Player.cpp.obj: CXX_COMPILER__OpenGLStarter_unscanned_Debug C$:/Users/usuario/Documents/work/work2/videojuegoOpengl/src/Player.cpp || cmake_object_order_depends_target_OpenGLStarter
+  DEP_FILE = CMakeFiles\OpenGLStarter.dir\src\Player.cpp.obj.d
+  FLAGS = -g
+  INCLUDES = -IC:/Users/usuario/Documents/work/work2/videojuegoOpengl/external/glfw/include -IC:/Users/usuario/Documents/work/work2/videojuegoOpengl/external/glad/include/glad -IC:/Users/usuario/Documents/work/work2/videojuegoOpengl/src -IC:/Users/usuario/Documents/work/work2/videojuegoOpengl/external -IC:/Users/usuario/Documents/work/work2/videojuegoOpengl/external/glad/include
+  OBJECT_DIR = CMakeFiles\OpenGLStarter.dir
+  OBJECT_FILE_DIR = CMakeFiles\OpenGLStarter.dir\src
+
 build CMakeFiles/OpenGLStarter.dir/src/main.cpp.obj: CXX_COMPILER__OpenGLStarter_unscanned_Debug C$:/Users/usuario/Documents/work/work2/videojuegoOpengl/src/main.cpp || cmake_object_order_depends_target_OpenGLStarter
   DEP_FILE = CMakeFiles\OpenGLStarter.dir\src\main.cpp.obj.d
   FLAGS = -g
@@ -64,7 +85,7 @@ build CMakeFiles/OpenGLStarter.dir/src/main.cpp.obj: CXX_COMPILER__OpenGLStarter
 #############################################
 # Link the executable OpenGLStarter.exe
 
-build OpenGLStarter.exe: CXX_EXECUTABLE_LINKER__OpenGLStarter_Debug CMakeFiles/OpenGLStarter.dir/src/main.cpp.obj | external/glfw/src/libglfw3.a external/glad/libglad.a || external/glad/libglad.a external/glfw/src/libglfw3.a
+build OpenGLStarter.exe: CXX_EXECUTABLE_LINKER__OpenGLStarter_Debug CMakeFiles/OpenGLStarter.dir/src/FallingObject.cpp.obj CMakeFiles/OpenGLStarter.dir/src/GameObject.cpp.obj CMakeFiles/OpenGLStarter.dir/src/Player.cpp.obj CMakeFiles/OpenGLStarter.dir/src/main.cpp.obj | external/glfw/src/libglfw3.a external/glad/libglad.a || external/glad/libglad.a external/glfw/src/libglfw3.a
   FLAGS = -g
   LINK_LIBRARIES = external/glfw/src/libglfw3.a  -lopengl32  external/glad/libglad.a  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   LINK_PATH = -LC:/Users/usuario/Documents/work/work2/videojuegoOpengl/external/glfw/src   -LC:/Users/usuario/Documents/work/work2/videojuegoOpengl/external/glad/src

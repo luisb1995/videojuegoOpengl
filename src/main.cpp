@@ -35,6 +35,7 @@ enum Scene
     GAME_COUNT,
     GAME,
     END,
+    SUPREME_VICTORY,
 };
 unsigned int countdownTextures[5]; // una para cada número
 bool isCountingDown = true;
@@ -56,7 +57,38 @@ float vertices[] = {
     -0.5f, 0.5f, 0.0f, 0.0f, 1.0f};
 unsigned int indices[] = {0, 1, 3, 1, 2, 3};
 
-unsigned int VBO, VAO, EBO, texture, texturaTitulo, texturaMensaje, TexturaJugador, TexturaJugadorD;
+unsigned int VBO, VAO, EBO, texture, texturaTitulo, texturaMensaje, TexturaJugador, TexturaJugadorD, TexturaVictoria, TexturaFondo;
+
+
+void LoadTexture2D(const std::string& path, GLuint& textureID)
+{
+    int width, height, nrChannels;
+    unsigned char* data;
+
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    stbi_set_flip_vertically_on_load(true);
+    data = stbi_load(path.c_str(), &width, &height, &nrChannels, 4);
+
+    if (data)
+    {
+        GLenum format = GL_RGBA;
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cerr << "Failed to load texture: " << path << std::endl;
+    }
+
+    stbi_image_free(data);
+}
 
 int main()
 {
@@ -109,185 +141,46 @@ int main()
     unsigned char *data;
 
     // === Cargar FRUTA ===
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    stbi_set_flip_vertically_on_load(true);
-    data = stbi_load("fruta3.png", &width, &height, &nrChannels, 4);
-    if (data)
-    {
-        GLenum format = GL_RGBA;
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    stbi_image_free(data);
+    LoadTexture2D("fruta3.png", texture);
 
     // === Cargar TÍTULO ===
-    glGenTextures(1, &texturaTitulo);
-    glBindTexture(GL_TEXTURE_2D, texturaTitulo);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    data = stbi_load("minijuego.png", &width, &height, &nrChannels, 4);
-    if (data)
-    {
-        GLenum format = GL_RGBA;
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    stbi_image_free(data);
+    LoadTexture2D("minijuego.png", texturaTitulo);
 
     // === Cargar MENSAJE ===
-    glGenTextures(1, &texturaMensaje);
-    glBindTexture(GL_TEXTURE_2D, texturaMensaje);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    data = stbi_load("presiona.png", &width, &height, &nrChannels, 4);
-    if (data)
-    {
-        GLenum format = GL_RGBA;
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    stbi_image_free(data);
+    LoadTexture2D("presiona.png", texturaMensaje);
 
     // === Cargar TEXTURAS DE CUENTA REGRESIVA ===
     char filename[20];
     for (int i = 0; i < 5; ++i)
     {
-        sprintf(filename, "count_%d.png", 5 - i); // "count_5.png", ..., "count_1.png"
-        glGenTextures(1, &countdownTextures[i]);
-        glBindTexture(GL_TEXTURE_2D, countdownTextures[i]);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        data = stbi_load(filename, &width, &height, &nrChannels, 4);
-        if (data)
-        {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-            glGenerateMipmap(GL_TEXTURE_2D);
-        }
-        else
-        {
-            std::cout << "Error al cargar " << filename << std::endl;
-        }
-        stbi_image_free(data);
+    sprintf(filename, "count_%d.png", 5 - i); 
+    LoadTexture2D(filename, countdownTextures[i]);  // <- Use formatted filename here
     }
+    
+    LoadTexture2D("jugador.png", TexturaJugador);
+    LoadTexture2D("jugadord.png", TexturaJugadorD);
+    LoadTexture2D("victoria.png", TexturaVictoria);
+    LoadTexture2D("fondo.png", TexturaFondo);
 
-    glGenTextures(1, &TexturaJugador);
-    glBindTexture(GL_TEXTURE_2D, TexturaJugador);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    stbi_set_flip_vertically_on_load(true);
-    unsigned char *basketData = stbi_load("jugador.png", &width, &height, &nrChannels, 4);
-    if (basketData)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, basketData);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        std::cout << "Error al cargar textura de cesta" << std::endl;
-    }
-    stbi_image_free(basketData);
-
-
-
-
-
-
-
-        glGenTextures(1, &TexturaJugadorD);
-    glBindTexture(GL_TEXTURE_2D, TexturaJugadorD);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    stbi_set_flip_vertically_on_load(true);
-    unsigned char *basketDataD = stbi_load("jugadord.png", &width, &height, &nrChannels, 4);
-    if (basketDataD)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, basketDataD);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        std::cout << "Error al cargar textura de cesta" << std::endl;
-    }
-    stbi_image_free(basketDataD);
 
     unsigned int texturaTiempo, texturaVolver;
 
     // Cargar "fin del juego.png"
-    glGenTextures(1, &texturaTiempo);
-    glBindTexture(GL_TEXTURE_2D, texturaTiempo);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    data = stbi_load("findeljuego.png", &width, &height, &nrChannels, 4);
-    if (data) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    stbi_image_free(data);
+    LoadTexture2D("findeljuego.png", texturaTiempo);
 
     // Cargar "volver.png"
-    glGenTextures(1, &texturaVolver);
-    glBindTexture(GL_TEXTURE_2D, texturaVolver);
-    // mismos parámetros
-    data = stbi_load("volver.png", &width, &height, &nrChannels, 4);
-    if (data) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    stbi_image_free(data);
+    LoadTexture2D("volver.png", texturaVolver);
+
 
     // Cargar "frutas_atrapadas.png"
-    glGenTextures(1, &texturaFrutasAtrapadas);
-    glBindTexture(GL_TEXTURE_2D, texturaFrutasAtrapadas);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    data = stbi_load("frutasatrapadas.png", &width, &height, &nrChannels, 4); // 🖼️ Usa tu nombre real
-    if (data) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    stbi_image_free(data);
+    LoadTexture2D("frutasatrapadas.png", texturaFrutasAtrapadas);
 
     // Cargar números del 0 al 9
     for (int i = 0; i < 10; ++i) {
-    glGenTextures(1, &numeros[i]);
-    glBindTexture(GL_TEXTURE_2D, numeros[i]);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
     std::string filename = "numeros/" + std::to_string(i) + ".png";
-    data = stbi_load(filename.c_str(), &width, &height, &nrChannels, 4);
-    if (data) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    } else {
-        std::cout << "Error al cargar: " << filename << std::endl;
+    LoadTexture2D(filename, numeros[i]);
     }
-    stbi_image_free(data);
-}
-
-
+    
 GameObject barraTiempo(
     glm::vec2(-1.0f, 0.95f), // Posición esquina superior izquierda
     glm::vec2(2.0f, 0.05f),  // Tamaño inicial: ocupa ancho completo
@@ -307,26 +200,11 @@ std::vector<std::string> nombresFrutas = {
 };
 
 for (const auto & nombre : nombresFrutas) {
-    unsigned int texID;
-    glGenTextures(1, &texID);
-    glBindTexture(GL_TEXTURE_2D, texID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    data = stbi_load(nombre.c_str(), &width, &height, &nrChannels, 4);
-    if (data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
+    GLuint texID;
+    LoadTexture2D(nombre, texID);
+    if (texID != 0) {
         texturasFrutas.push_back(texID);
     }
-    else
-    {
-        std::cout << "Error al cargar imagen de fruta: " << nombre << std::endl;
-    }
-    stbi_image_free(data);
 }
 
 
@@ -341,6 +219,15 @@ for (const auto & nombre : nombresFrutas) {
         TexturaJugador,
         TexturaJugadorD
     );
+    
+    
+    
+    glm::vec2 screenSize(2.0f, 2.0f); 
+    glm::vec2 screenPos(0.0f, -0.0f); 
+
+GameObject background(screenPos, screenSize, TexturaFondo);
+GameObject victory(screenPos, screenSize, TexturaVictoria);
+
 
     static float velocidad_jugador = 0.08f;
 
@@ -437,11 +324,12 @@ for (const auto & nombre : nombresFrutas) {
             break;
         }
 case GAME: {
+    
     glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     shader.use();
-
+    background.Draw(shader, VAO);
     glUniform1f(glGetUniformLocation(shader.ID, "uCountdown"), -1.0f);
     
     jugador->Draw(shader, VAO, false);
@@ -477,6 +365,10 @@ case GAME: {
                 fruta.IsActive = false;
                  frutasAtrapadas++;
                 // suma puntaje, efecto, etc.
+
+                if(frutasAtrapadas == 10) {
+                    currentScene = SUPREME_VICTORY;
+                }
             }
         }
     }
@@ -528,8 +420,26 @@ case GAME: {
         
             break;
         }
+
+
+
+
+
+ case SUPREME_VICTORY:
+    switcheable = 1;
+    glClearColor(0.2f, 0.0f, 0.1f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    shader.use();
+
+    victory.Draw(shader, VAO);
+
+    glUniform1f(glGetUniformLocation(shader.ID, "uCountdown"), -1.0f);
+
+
+break;
+
   case END:
-        switcheable = 1;
+    switcheable = 1;
     glClearColor(0.2f, 0.0f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     shader.use();
@@ -587,38 +497,54 @@ case GAME: {
     return 0;
 }
 
-void processInput(GLFWwindow *window, int switcheable)
+
+
+
+
+void processInput(GLFWwindow* window, int switcheable)
 {
     static bool enterPressed = false;
+    static double lastEnterPressTime = 0.0;
+    double currentTime = glfwGetTime();
 
-    if(switcheable == 1) {
+    if (switcheable == 1) {
+        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+            glfwSetWindowShouldClose(window, true);
 
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-    if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS && !enterPressed)
-    {
-        if (currentScene == MENU)
-            currentScene = GAME_COUNT;
-        else if (currentScene == GAME_COUNT)
+        if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS && !enterPressed && (currentTime - lastEnterPressTime >= 0.5))
         {
-            currentScene = END;
+            if (currentScene == MENU)
+                currentScene = GAME_COUNT;
+            else if (currentScene == GAME_COUNT)
+                currentScene = END;
+            else if (currentScene == END)
+            {
+                currentScene = MENU;
+                isCountingDown = true;
+                countdownStart = 0.0f;
+            }
+            else if (currentScene == SUPREME_VICTORY)
+            {
+                currentScene = MENU;
+                isCountingDown = true;
+                countdownStart = 0.0f;
+            }
+
+            enterPressed = true;
+            lastEnterPressTime = currentTime;
         }
-        else if (currentScene == END)
-            currentScene = MENU;
-             isCountingDown = true;
-             countdownStart = 0.0f;
-        enterPressed = true;
-    }
-    if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_RELEASE)
-        enterPressed = false;
-} else {
-            if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+
+        if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_RELEASE)
+            enterPressed = false;
+
+    } else {
+        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
             jugador->Move(-velocidad_jugador);
         }
         if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
             jugador->Move(velocidad_jugador);
         }
-}
+    }
 }
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
