@@ -6,8 +6,19 @@ in vec2 TexCoord;
 uniform float uCountdown;
 uniform sampler2D texture1;
 
+// Nuevos uniformes
+uniform bool useSolidColor;
+uniform vec3 solidColor;
+
 void main()
 {
+    // ✅ Si se activa color sólido, lo aplicamos directamente y salimos
+    if (useSolidColor) {
+        FragColor = vec4(solidColor, 1.0);
+        return;
+    }
+
+    // ⏱️ Efecto circular del countdown
     vec2 center = vec2(0.5, 0.5);
     vec2 pos = TexCoord;
 
@@ -25,6 +36,7 @@ void main()
             discard;
     }
 
+    // 🖼️ Textura normal
     vec4 texColor = texture(texture1, TexCoord);
     if (texColor.a < 0.1)
         discard;

@@ -16,7 +16,7 @@ public:
     bool CheckCollisionBody(const GameObject &other) const;
     bool CheckCollisionPlate(const GameObject &other) const;
     bool CheckCollision(const GameObject &other) ; // Polymorphic collision
-
+   
 private:
     unsigned int damagedTexture;
     bool facingLeft;

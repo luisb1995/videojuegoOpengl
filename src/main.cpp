@@ -40,6 +40,12 @@ unsigned int countdownTextures[5]; // una para cada número
 bool isCountingDown = true;
 float countdownStart = 0.0f;
 int currentScene = MENU;
+float tiempoDeJuego = 25.0f;
+float tiempoTranscurrido = 0.0f;
+bool juegoTerminado = false;
+int frutasAtrapadas = 0;
+unsigned int texturaFrutasAtrapadas;
+unsigned int numeros[10];
 
 float countdownStartTime = 0.0f;
 
@@ -220,12 +226,78 @@ int main()
     }
     stbi_image_free(basketDataD);
 
+    unsigned int texturaTiempo, texturaVolver;
+
+    // Cargar "fin del juego.png"
+    glGenTextures(1, &texturaTiempo);
+    glBindTexture(GL_TEXTURE_2D, texturaTiempo);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    data = stbi_load("findeljuego.png", &width, &height, &nrChannels, 4);
+    if (data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    stbi_image_free(data);
+
+    // Cargar "volver.png"
+    glGenTextures(1, &texturaVolver);
+    glBindTexture(GL_TEXTURE_2D, texturaVolver);
+    // mismos parámetros
+    data = stbi_load("volver.png", &width, &height, &nrChannels, 4);
+    if (data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    stbi_image_free(data);
+
+    // Cargar "frutas_atrapadas.png"
+    glGenTextures(1, &texturaFrutasAtrapadas);
+    glBindTexture(GL_TEXTURE_2D, texturaFrutasAtrapadas);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    data = stbi_load("frutasatrapadas.png", &width, &height, &nrChannels, 4); // 🖼️ Usa tu nombre real
+    if (data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    stbi_image_free(data);
+
+    // Cargar números del 0 al 9
+    for (int i = 0; i < 10; ++i) {
+    glGenTextures(1, &numeros[i]);
+    glBindTexture(GL_TEXTURE_2D, numeros[i]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    std::string filename = "numeros/" + std::to_string(i) + ".png";
+    data = stbi_load(filename.c_str(), &width, &height, &nrChannels, 4);
+    if (data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    } else {
+        std::cout << "Error al cargar: " << filename << std::endl;
+    }
+    stbi_image_free(data);
+}
 
 
+GameObject barraTiempo(
+    glm::vec2(-1.0f, 0.95f), // Posición esquina superior izquierda
+    glm::vec2(2.0f, 0.05f),  // Tamaño inicial: ocupa ancho completo
+    0                        // Sin textura, usaremos color sólido
+);
 
 std::vector<FallingObject> frutas;  // Frutas activas en escena
 float frutaSpawnTimer = 0.0f;
 float frutaSpawnInterval = 1.0f; // cada segundo
+
 std::vector<unsigned int> texturasFrutas;
 std::vector<std::string> nombresFrutas = {
     "frutas/banana.png",
@@ -234,7 +306,7 @@ std::vector<std::string> nombresFrutas = {
     "frutas/pear.png"
 };
 
-for (const auto& nombre : nombresFrutas) {
+for (const auto & nombre : nombresFrutas) {
     unsigned int texID;
     glGenTextures(1, &texID);
     glBindTexture(GL_TEXTURE_2D, texID);
@@ -259,6 +331,7 @@ for (const auto& nombre : nombresFrutas) {
 
 
 
+
     jugador = new Player( 
       //  glm::vec2(0.0f, -0.8f),
       //  glm::vec2(0.2f, 0.1f),
@@ -276,6 +349,7 @@ for (const auto& nombre : nombresFrutas) {
     {
         processInput(window, switcheable);
         glClear(GL_COLOR_BUFFER_BIT);
+        
 
         switch (currentScene)
         {
@@ -312,6 +386,10 @@ for (const auto& nombre : nombresFrutas) {
             glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transformMensaje));
             glBindTexture(GL_TEXTURE_2D, texturaMensaje);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            tiempoTranscurrido = 0.0f;
+        juegoTerminado = false;
+        barraTiempo.Size.x = 2.0f;
+         frutasAtrapadas= 0;
 
             break;
         }
@@ -397,7 +475,8 @@ case GAME: {
 
             if (jugador && jugador->CheckCollision(fruta)) {
                 fruta.IsActive = false;
-                // Aquí puedes sumar puntaje, cambiar estado, etc.
+                 frutasAtrapadas++;
+                // suma puntaje, efecto, etc.
             }
         }
     }
@@ -406,12 +485,94 @@ case GAME: {
     frutas.erase(std::remove_if(frutas.begin(), frutas.end(),
                                 [](const FallingObject& f) { return !f.IsActive; }),
                  frutas.end());
-    break;
-}
-        case END:
+
+        if (!juegoTerminado) {
+            // ⏱️ Actualizar tiempo
+            tiempoTranscurrido += deltaTime;
+
+            // 🛑 Verificar si se terminó el juego
+            if (tiempoTranscurrido >= tiempoDeJuego) {
+                juegoTerminado = true;
+                currentScene = END;
+            }
+
+            // 🎯 Calcular porcentaje restante
+            float porcentaje = std::max(0.0f, 1.0f - tiempoTranscurrido / tiempoDeJuego);
+            barraTiempo.Size.x = 2.0f * porcentaje;
+
+            // 🎨 Color dinámico según tiempo restante
+            glm::vec3 color;
+            if (porcentaje > 0.5f)
+                color = glm::vec3(0.2f, 0.8f, 0.3f); // Verde
+            else if (porcentaje > 0.25f)
+                color = glm::vec3(0.9f, 0.8f, 0.0f); // Amarillo
+            else
+                color = glm::vec3(0.9f, 0.2f, 0.2f); // Rojo
+
+            // 🎨 Dibujar barra
+            shader.use();
+            shader.setBool("useSolidColor", true);
+            shader.setVec3("solidColor", color.x, color.y, color.z);
+
+            glm::mat4 transform = glm::mat4(1.0f);
+            transform = glm::translate(transform, glm::vec3(barraTiempo.Position, 0.0f));
+            transform = glm::scale(transform, glm::vec3(barraTiempo.Size, 1.0f));
+            glUniformMatrix4fv(glGetUniformLocation(shader.ID, "transform"), 1, GL_FALSE, glm::value_ptr(transform));
+
+            glBindTexture(GL_TEXTURE_2D, 0);
+            glBindVertexArray(VAO);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+            shader.setBool("useSolidColor", false);
+        }
+        
+            break;
+        }
+  case END:
         switcheable = 1;
-            glClearColor(0.2f, 0.0f, 0.1f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(0.2f, 0.0f, 0.1f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    shader.use();
+
+    glUniform1f(glGetUniformLocation(shader.ID, "uCountdown"), -1.0f);
+
+            // Mostrar mensaje "¡Tiempo!"
+            glm::mat4 transformTiempo = glm::mat4(1.0f);
+            transformTiempo = glm::translate(transformTiempo, glm::vec3(0.0f, 0.5f, 0.0f));
+            transformTiempo = glm::scale(transformTiempo, glm::vec3(0.8f, 0.25f, 1.0f));
+            glUniformMatrix4fv(glGetUniformLocation(shader.ID, "transform"), 1, GL_FALSE, glm::value_ptr(transformTiempo));
+            glBindTexture(GL_TEXTURE_2D, texturaTiempo);
+            glBindVertexArray(VAO);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+            // 1️⃣ Imagen: "frutas atrapadas:"
+            glm::mat4 transformFrutas = glm::mat4(1.0f);
+            transformFrutas = glm::translate(transformFrutas, glm::vec3(0.0f, 0.2f, 0.0f));
+            transformFrutas = glm::scale(transformFrutas, glm::vec3(0.8f, 0.2f, 1.0f));
+            glUniformMatrix4fv(glGetUniformLocation(shader.ID, "transform"), 1, GL_FALSE, glm::value_ptr(transformFrutas));
+            glBindTexture(GL_TEXTURE_2D, texturaFrutasAtrapadas);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+           // 2️⃣ Mostrar número de frutas atrapadas debajo del título
+            std::string numeroTexto = std::to_string(frutasAtrapadas);
+            float baseX = -0.05f * numeroTexto.size();
+            for (int i = 0; i < numeroTexto.size(); ++i) {
+                int digito = numeroTexto[i] - '0';
+                glm::mat4 transformNumero = glm::mat4(1.0f);
+                transformNumero = glm::translate(transformNumero, glm::vec3(baseX + i * 0.1f, 0.05f, 0.1f)); // ⬅️ Subimos un poco
+                transformNumero = glm::scale(transformNumero, glm::vec3(0.08f, 0.15f, 1.0f));
+                glUniformMatrix4fv(glGetUniformLocation(shader.ID, "transform"), 1, GL_FALSE, glm::value_ptr(transformNumero));
+                glBindTexture(GL_TEXTURE_2D, numeros[digito]);
+                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            }
+
+            // Mostrar mensaje "Presiona ENTER"
+            glm::mat4 transformVolver = glm::mat4(1.0f);
+            transformVolver = glm::translate(transformVolver, glm::vec3(0.0f, -0.3f, 0.0f));
+            transformVolver = glm::scale(transformVolver, glm::vec3(0.7f, 0.2f, 1.0f));
+            glUniformMatrix4fv(glGetUniformLocation(shader.ID, "transform"), 1, GL_FALSE, glm::value_ptr(transformVolver));
+            glBindTexture(GL_TEXTURE_2D, texturaVolver);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
             break;
         }
 
@@ -444,6 +605,8 @@ void processInput(GLFWwindow *window, int switcheable)
         }
         else if (currentScene == END)
             currentScene = MENU;
+             isCountingDown = true;
+             countdownStart = 0.0f;
         enterPressed = true;
     }
     if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_RELEASE)
