@@ -319,6 +319,7 @@ GameObject victory(screenPos, screenSize, TexturaVictoria);
             }
             else
             {
+                countdownStartTime = glfwGetTime();
                 currentScene = GAME;
             }
             break;
